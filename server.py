@@ -4,26 +4,32 @@ import game
 
 app = Flask(__name__)
 
-mGame = None
+m_game = None
 
 
 @app.route('/api/host')
 def api_host():
-    global mGame
+    global m_game
     try:
-        print "hello"
         # if mGame is None:
         #     print mGame
         #     mGame = game.Game(952)
         #     print mGame
-        if mGame is not None:
-            if mGame.survey is not None:
-                return jsonify({"title": mGame.survey.survey})
+        if m_game is not None:
+            if m_game.survey is not None:
+                return jsonify({"title": m_game.survey.survey})
         return jsonify({
             "title": "Sorry no game data available, please either select assistant or "
                      "have someone on another device become assistant"})
     except Exception as e:
         print e
+
+
+@app.route('/api/survey/set')
+def set_survey():
+    global m_game
+    if "id" in request.json.keys():
+        m_game = game.Game(int(request.json.get("id")))
 
 
 @app.route('/api/random')
@@ -60,29 +66,29 @@ def get_surveys():
 def click_num():
     if "num" in request.json.keys():
         print request.json.get("num")
-        mGame.click_answer(request.json.get("num"))
-    return jsonify({"answers": mGame.clicked_answers})
+        m_game.click_answer(request.json.get("num"))
+    return jsonify({"answers": m_game.clicked_answers})
 
 
 @app.route("/get_clicked")
 def get_clicked():
-    print str(mGame.clicked_answers)
-    return jsonify({"answers": mGame.clicked_answers})
+    print str(m_game.clicked_answers)
+    return jsonify({"answers": m_game.clicked_answers})
 
 
 @app.route("/get_game")
 def get_game():
-    return jsonify({"answers": mGame.clicked_answers})
+    return jsonify({"answers": m_game.clicked_answers})
 
 
 @app.route("/api/families/edit")
 def edit_families():
     f1 = request.json.get("family1")
     f2 = request.json.get("family2")
-    mGame.family1.name = f1["name"]
-    mGame.family2.name = f2["name"]
-    mGame.family1.score = f1["score"]
-    mGame.family2.score = f2["score"]
+    m_game.family1.name = f1["name"]
+    m_game.family2.name = f2["name"]
+    m_game.family1.score = f1["score"]
+    m_game.family2.score = f2["score"]
 
 
 # region html
