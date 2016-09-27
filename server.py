@@ -29,7 +29,10 @@ def api_host():
 def set_survey():
     global m_game
     if "id" in request.json.keys():
-        m_game = game.Game(int(request.json.get("id")))
+        if m_game is None:
+            m_game = game.Game(int(request.json.get("id")))
+        else:
+            m_game.survey = game.get_survey(int(request.json.get("id")))
 
 
 @app.route('/api/random')
@@ -52,17 +55,29 @@ def get_surveys():
     _min = 1
     _max = 8
     search = ""
+    count = -1
+    start = 0
     if "min" in request.json.keys():
         _min = int(request.json.get("min"))
     if "max" in request.json.keys():
         _max = int(request.json.get("max"))
     if "search" in request.json.keys():
-        search = int(request.json.get("search"))
+        search = request.json.get("search")
+    if "count" in request.json.keys():
+        count = int(request.json.get("count"))
+    if "start" in request.json.keys():
+        start = int(request.json.get("start"))
 
-    return jsonify(helper.get_surveys(_min, _max, search))
+    return jsonify(helper.get_surveys(_min, _max, search, count, start))
 
 
-@app.route("/click_num")
+@app.route("/api/game/test")
+def test():
+    global m_game
+    return str(m_game.survey.answers)
+
+
+@app.route("/api/game/answer")
 def click_num():
     if "num" in request.json.keys():
         print request.json.get("num")

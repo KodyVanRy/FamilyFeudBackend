@@ -20,13 +20,15 @@ def get_random_survey(_min, _max, _search):
     return r_dict
 
 
-def get_surveys(_min, _max, _search):
+def get_surveys(_min, _max, _search, count, start):
     r_dict = {}
 
     surveys = database_models.Survey.query.filter(database_models.Survey.title.like("%" + str(_search) + "%")
                                                   .filter(database_models.Survey.answer_count >= int(_min))
                                                   .filter(database_models.Survey.answer_count <= int(_max))
                                                   .all())
+    if count > -1:
+        surveys = surveys[start:start+count]
 
     r_dict["surveys"] = [
         {"title": survey.title, "id": survey.id} for survey in surveys

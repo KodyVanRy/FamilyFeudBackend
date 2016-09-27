@@ -30,6 +30,9 @@ class Game:
                     self.points += answer.value
                 answer.answered = True
 
+    def set_survey(self, survey_id):
+        self.survey = get_survey(survey_id)
+
 
 def get_survey(survey_id):
     _survey = database_models.Survey.query.filter_by(id=survey_id).first()
