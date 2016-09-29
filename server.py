@@ -35,7 +35,7 @@ def set_survey():
             m_game.survey = game.get_survey(int(request.json.get("id")))
 
 
-@app.route('/api/random')
+@app.route('/api/survey/random')
 def get_new_survey():
     _min = 1
     _max = 8
@@ -82,7 +82,7 @@ def click_num():
     if "num" in request.json.keys():
         print request.json.get("num")
         m_game.click_answer(request.json.get("num"))
-    return jsonify({"answers": m_game.clicked_answers})
+    return jsonify({"answers": [{"answer": answer.answer, "value": answer.value, "answered": answer.answered} for answer in m_game.clicked_answers]})
 
 
 @app.route("/get_clicked")

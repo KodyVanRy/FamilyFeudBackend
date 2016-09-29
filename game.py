@@ -33,6 +33,9 @@ class Game:
     def set_survey(self, survey_id):
         self.survey = get_survey(survey_id)
 
+    def click_answer(self, answer_num):
+        self.survey.answers[answer_num].answered = True
+
 
 def get_survey(survey_id):
     _survey = database_models.Survey.query.filter_by(id=survey_id).first()
