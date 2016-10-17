@@ -20,15 +20,21 @@ def get_random_survey(_min, _max, _search):
     return r_dict
 
 
-def get_surveys(_min, _max, _search):
+def get_surveys(_min, _max, _search, start, count):
     r_dict = {}
 
-    surveys = database_models.Survey.query.filter(database_models.Survey.title.like("%" + str(_search) + "%")
-                                                  .filter(database_models.Survey.answer_count >= int(_min))
-                                                  .filter(database_models.Survey.answer_count <= int(_max))
-                                                  .all())
+    surveys = database_models.Survey.query.filter(database_models.Survey.title.like("%" + str(_search) + "%"))\
+        .filter(database_models.Survey.answer_count >= int(_min))\
+        .filter(database_models.Survey.answer_count <= int(_max))\
+        .all()
 
+    surveys = surveys[start:start+count]
     r_dict["surveys"] = [
         {"title": survey.title, "id": survey.id} for survey in surveys
         ]
     return r_dict
+
+
+def get_answers_json(game):
+    return [{"answer": answer.answer, "id": answer.id, "value": answer.value, "answered": answer.answered}
+            for answer in game.survey.answers]

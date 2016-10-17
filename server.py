@@ -1,6 +1,7 @@
 import helper
 from flask import Flask, request, jsonify
 import game
+# from game import SINGLE, DOUBLE, TRIPLE, SUDDEN_DEATH, FAST_MONEY
 
 app = Flask(__name__)
 
@@ -11,10 +12,6 @@ m_game = None
 def api_host():
     global m_game
     try:
-        # if mGame is None:
-        #     print mGame
-        #     mGame = game.Game(952)
-        #     print mGame
         if m_game is not None:
             if m_game.survey is not None:
                 return jsonify({"title": m_game.survey.survey})
@@ -28,41 +25,70 @@ def api_host():
 @app.route('/api/survey/set')
 def set_survey():
     global m_game
-    if "id" in request.json.keys():
+    if request.json is not None and "id" in request.json.keys():
         m_game = game.Game(int(request.json.get("id")))
+    elif "id" in request.args.keys():
+        m_game = game.Game(int(request.args.get("id")))
+    return api_host()
 
 
-@app.route('/api/random')
+@app.route('/api/surveys/get/random')
 def get_new_survey():
     _min = 1
     _max = 8
     search = ""
-    if "min" in request.json.keys():
-        _min = int(request.json.get("min"))
-    if "max" in request.json.keys():
-        _max = int(request.json.get("max"))
-    if "search" in request.json.keys():
-        search = int(request.json.get("search"))
+    if request.json is not None:
+        if "min" in request.json.keys():
+            _min = int(request.json.get("min"))
+        if "max" in request.json.keys():
+            _max = int(request.json.get("max"))
+        if "search" in request.json.keys():
+            search = int(request.json.get("search"))
+    if request.args is not None:
+        if "min" in request.args.keys():
+            _min = int(request.args.get("min"))
+        if "max" in request.args.keys():
+            _max = int(request.args.get("max"))
+        if "search" in request.args.keys():
+            search = str(request.args.get("search"))
 
     return jsonify(helper.get_random_survey(_min, _max, search))
 
 
-@app.route('/api/surveys')
+@app.route('/api/surveys/get')
 def get_surveys():
     _min = 1
     _max = 8
     search = ""
-    if "min" in request.json.keys():
-        _min = int(request.json.get("min"))
-    if "max" in request.json.keys():
-        _max = int(request.json.get("max"))
-    if "search" in request.json.keys():
-        search = int(request.json.get("search"))
+    start = 0
+    count = 10
+    if request.json is not None:
+        if "min" in request.json.keys():
+            _min = int(request.json.get("min"))
+        if "max" in request.json.keys():
+            _max = int(request.json.get("max"))
+        if "start" in request.json.keys():
+            start = int(request.json.get("start"))
+        if "count" in request.json.keys():
+            count = int(request.json.get("count"))
+        if "search" in request.json.keys():
+            search = int(request.json.get("search"))
+    if request.args is not None:
+        if "min" in request.args.keys():
+            _min = int(request.args.get("min"))
+        if "max" in request.args.keys():
+            _max = int(request.args.get("max"))
+        if "start" in request.args.keys():
+            start = int(request.args.get("start"))
+        if "count" in request.args.keys():
+            count = int(request.args.get("count"))
+        if "search" in request.args.keys():
+            search = str(request.args.get("search"))
 
-    return jsonify(helper.get_surveys(_min, _max, search))
+    return jsonify(helper.get_surveys(_min, _max, search, start, count))
 
 
-@app.route("/click_num")
+@app.route("/api/answers/patch")
 def click_num():
     if "num" in request.json.keys():
         print request.json.get("num")
@@ -70,10 +96,11 @@ def click_num():
     return jsonify({"answers": m_game.clicked_answers})
 
 
-@app.route("/get_clicked")
+@app.route("/api/game/get")
 def get_clicked():
-    print str(m_game.clicked_answers)
-    return jsonify({"answers": m_game.clicked_answers})
+    print str(m_game.survey.answers)
+    return jsonify({"answers": helper.get_answers_json(m_game),
+                    "game_mode": m_game.mode})
 
 
 @app.route("/get_game")

@@ -1,6 +1,13 @@
 import database_models
 
 
+SINGLE = 0
+DOUBLE = 1
+TRIPLE = 2
+SUDDEN_DEATH = 3
+FAST_MONEY = 4
+
+
 class Answer:
     _id = 0
 
@@ -19,9 +26,10 @@ class Survey:
 
 
 class Game:
-    def __init__(self, survey_id):
+    def __init__(self, survey_id, mode=SINGLE):
         self.survey = get_survey(survey_id)
         self.points = 0
+        self.mode = mode
 
     def reveal(self, answer_id):
         for answer in self.survey.answers:
