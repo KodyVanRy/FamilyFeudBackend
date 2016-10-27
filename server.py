@@ -88,12 +88,13 @@ def get_surveys():
     return jsonify(helper.get_surveys(_min, _max, search, start, count))
 
 
-@app.route("/api/answers/patch")
+@app.route("/api/answers")
 def click_num():
-    if "num" in request.json.keys():
-        print request.json.get("num")
-        m_game.click_answer(request.json.get("num"))
-    return jsonify({"answers": m_game.clicked_answers})
+    if request.json is not None and "clicked" in request.json.keys():
+        return jsonify({"answers": eval(request.json.get("clicked"))})
+    if request.args is not None and "clicked" in request.args.keys():
+        return jsonify({"answers": [int(arg) for arg in request.args.get("clicked").split(",")]})
+    return jsonify({"answers": None})
 
 
 @app.route("/api/game/get")
