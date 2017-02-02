@@ -1,11 +1,18 @@
 import database_models
 
 
+SETUP = -1
 SINGLE = 0
 DOUBLE = 1
 TRIPLE = 2
 SUDDEN_DEATH = 3
 FAST_MONEY = 4
+
+
+class Family:
+    def __init__(self, name):
+        self.name = name
+        self.points = 0
 
 
 class Answer:
@@ -26,10 +33,9 @@ class Survey:
 
 
 class Game:
-    def __init__(self, survey_id, mode=SINGLE):
+    def __init__(self, survey_id):
         self.survey = get_survey(survey_id)
         self.points = 0
-        self.mode = mode
 
     def reveal(self, answer_id):
         for answer in self.survey.answers:
@@ -40,6 +46,7 @@ class Game:
 
     def set_survey(self, survey_id):
         self.survey = get_survey(survey_id)
+        self.points = 0
 
     def click_answer(self, answer_num):
         self.survey.answers[answer_num].answered = True
