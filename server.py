@@ -1,3 +1,4 @@
+#!/usr/bin/pythong
 import helper
 from flask import Flask, request, jsonify
 import game
@@ -6,11 +7,16 @@ import game
 app = Flask(__name__)
 
 m_game = None
+game_mode = game.SETUP
+
+
+@app.route('/')
+def _home_():
+    return "Welcome to Family Feud"
 
 
 @app.route('/api/host')
 def api_host():
-    global m_game
     try:
         if m_game is not None:
             if m_game.survey is not None:
@@ -22,13 +28,25 @@ def api_host():
         print e
 
 
-@app.route('/api/survey/set')
+@app.route('/api/game_state')
+def api_game_state():
+    global game_mode
+    if request.json is not None and "mode" in request.json.keys():
+        game_mode = int(request.json.get("mode"))
+    elif "mode" in request.args.keys():
+        game_mode = int(request.args.get("mode"))
+    return jsonify({"game_mode": game_mode})
+
+
+@app.route('/api/surveys/set')
 def set_survey():
     global m_game
     if request.json is not None and "id" in request.json.keys():
         m_game = game.Game(int(request.json.get("id")))
     elif "id" in request.args.keys():
         m_game = game.Game(int(request.args.get("id")))
+    if game_mode == game.SUDDEN_DEATH:
+        m_game.survey.answers = m_game.survey.answers[:1]
     return api_host()
 
 
@@ -101,12 +119,7 @@ def click_num():
 def get_clicked():
     print str(m_game.survey.answers)
     return jsonify({"answers": helper.get_answers_json(m_game),
-                    "game_mode": m_game.mode})
-
-
-@app.route("/get_game")
-def get_game():
-    return jsonify({"answers": m_game.clicked_answers})
+                    "game_mode": game_mode})
 
 
 @app.route("/api/families/edit")
@@ -161,4 +174,4 @@ def edit_families():
 # endregion
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
