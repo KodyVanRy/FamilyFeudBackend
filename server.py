@@ -2,6 +2,7 @@
 import helper
 from flask import Flask, request, jsonify
 import game
+
 # from game import SINGLE, DOUBLE, TRIPLE, SUDDEN_DEATH, FAST_MONEY
 
 app = Flask(__name__)
@@ -17,11 +18,13 @@ def _home_():
 
 @app.route('/api/host')
 def api_host():
+    global game_mode
     try:
         if m_game is not None:
             if m_game.survey is not None:
-                return jsonify({"title": m_game.survey.survey})
+                return jsonify({"game_mode": game_mode, "title": m_game.survey.survey})
         return jsonify({
+            "game_mode": game_mode,
             "title": "Sorry no game data available, please either select assistant or "
                      "have someone on another device become assistant"})
     except Exception as e:
@@ -38,7 +41,7 @@ def api_game_state():
     return jsonify({"game_mode": game_mode})
 
 
-@app.route('/api/surveys/set')
+@app.route('/api/surveys')
 def set_survey():
     global m_game
     if request.json is not None and "id" in request.json.keys():
@@ -50,7 +53,7 @@ def set_survey():
     return api_host()
 
 
-@app.route('/api/surveys/get/random')
+@app.route('/api/surveys/random')
 def get_new_survey():
     _min = 1
     _max = 8
@@ -73,7 +76,7 @@ def get_new_survey():
     return jsonify(helper.get_random_survey(_min, _max, search))
 
 
-@app.route('/api/surveys/get')
+@app.route('/api/surveys/list')
 def get_surveys():
     _min = 1
     _max = 8
@@ -115,7 +118,7 @@ def click_num():
     return jsonify({"answers": None})
 
 
-@app.route("/api/game/get")
+@app.route("/api/game")
 def get_clicked():
     print str(m_game.survey.answers)
     return jsonify({"answers": helper.get_answers_json(m_game),
@@ -174,4 +177,4 @@ def edit_families():
 # endregion
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True)

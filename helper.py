@@ -4,11 +4,11 @@ from random import choice
 
 def get_random_survey(_min, _max, _search):
     r_dict = {}
-
-    surveys = database_models.Survey.query.filter(database_models.Survey.title.like("%" + str(_search) + "%")
-                                                  .filter(database_models.Survey.answer_count >= int(_min))
-                                                  .filter(database_models.Survey.answer_count <= int(_max))
-                                                  .all())
+    database_models.Survey.title.like("%" + str(_search) + "%")
+    database_models.Survey.query.filter(database_models.Survey.answer_count >= int(_min))
+    surveys = database_models.Survey.query.filter(database_models.Survey.title.like("%" + str(_search) + "%"))\
+        .filter(database_models.Survey.answer_count >= int(_min))\
+        .filter(database_models.Survey.answer_count <= int(_max)).all()
     survey = choice(surveys)
     answers = database_models.Answer.query.filter_by(survey=survey.id).all()
 
@@ -23,7 +23,7 @@ def get_random_survey(_min, _max, _search):
 def get_surveys(_min, _max, _search, start, count):
     r_dict = {}
 
-    surveys = database_models.Survey.query.filter(database_models.Survey.title.like("%" + str(_search) + "%"))\
+    surveys = database_models.Survey.query.filter_by(database_models.Survey.title.like("%" + str(_search) + "%"))\
         .filter(database_models.Survey.answer_count >= int(_min))\
         .filter(database_models.Survey.answer_count <= int(_max))\
         .all()
