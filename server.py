@@ -142,7 +142,6 @@ def click_num():
 @app.route("/api/game")
 def get_clicked():
     global m_game
-    print str(m_game.survey.answers)
     if m_game is not None:
         return jsonify({"answers": helper.get_answers_json(m_game),
                         "game_mode": game_mode})
