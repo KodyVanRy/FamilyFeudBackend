@@ -53,6 +53,24 @@ def set_survey():
     return api_host()
 
 
+@app.route('/api/start_game')
+def start_game():
+    global m_game, game_mode
+    if request.json is not None and "id" in request.json.keys():
+        m_game = game.Game(int(request.json.get("id")))
+    elif "id" in request.args.keys():
+        m_game = game.Game(int(request.args.get("id")))
+    else:
+        m_game = game.Game(helper.get_random_survey(3, 8, "")["id"])
+    if request.json is not None and "mode" in request.json.keys():
+        game_mode = int(request.json.get("mode"))
+    elif "mode" in request.args.keys():
+        game_mode = int(request.args.get("mode"))
+    if game_mode == game.SUDDEN_DEATH:
+        m_game.survey.answers = m_game.survey.answers[:1]
+    return api_host()
+
+
 @app.route('/api/surveys/random')
 def get_new_survey():
     _min = 1
@@ -64,7 +82,7 @@ def get_new_survey():
         if "max" in request.json.keys():
             _max = int(request.json.get("max"))
         if "search" in request.json.keys():
-            search = int(request.json.get("search"))
+            search = str(request.json.get("search"))
     if request.args is not None:
         if "min" in request.args.keys():
             _min = int(request.args.get("min"))
@@ -109,19 +127,26 @@ def get_surveys():
     return jsonify(helper.get_surveys(_min, _max, search, start, count))
 
 
-@app.route("/api/answers")
+@app.route("/api/answers", )
 def click_num():
-    if request.json is not None and "clicked" in request.json.keys():
-        return jsonify({"answers": eval(request.json.get("clicked"))})
-    if request.args is not None and "clicked" in request.args.keys():
-        return jsonify({"answers": [int(arg) for arg in request.args.get("clicked").split(",")]})
+    try:
+        if request.json is not None and "answer" in request.json.keys():
+            m_game.reveal(int(request.json.get("answer")))
+        if request.args is not None and "answer" in request.args.keys():
+            m_game.reveal(int(request.args.get("answer")))
+    except Exception as e:
+        return jsonify({"success": False, "error": e})
     return jsonify({"answers": None})
 
 
 @app.route("/api/game")
 def get_clicked():
+    global m_game
     print str(m_game.survey.answers)
-    return jsonify({"answers": helper.get_answers_json(m_game),
+    if m_game is not None:
+        return jsonify({"answers": helper.get_answers_json(m_game),
+                        "game_mode": game_mode})
+    return jsonify({"answers": [],
                     "game_mode": game_mode})
 
 

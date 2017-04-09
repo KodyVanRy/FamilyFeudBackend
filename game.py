@@ -34,6 +34,7 @@ class Survey:
 
 class Game:
     def __init__(self, survey_id):
+        Answer._id = 0
         self.survey = get_survey(survey_id)
         self.points = 0
 
@@ -48,7 +49,7 @@ class Game:
         self.survey = get_survey(survey_id)
         self.points = 0
 
-    def click_answer(self, answer_num):
+    def answer(self, answer_num):
         self.survey.answers[answer_num].answered = True
 
 
